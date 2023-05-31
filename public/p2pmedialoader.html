@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Clappr/Hls.js with P2P Media Loader</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/p2p-media-loader-core@latest/build/p2p-media-loader-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p2p-media-loader-hlsjs@latest/build/p2p-media-loader-hlsjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest"></script>
+</head>
+<body>
+    <div id="player"></div>
+    <video></video>
+    <script>
+        if (p2pml.hlsjs.Engine.isSupported()) {
+            var engine = new p2pml.hlsjs.Engine();
+            
+            // var hls = new Hls({
+            //     liveSyncDurationCount: 7,
+            //     loader: engine.createLoaderClass()
+            // });
+            // p2pml.hlsjs.initHlsJsPlayer(hls);
+            // hls.loadSource("https://203.247.240.228:8000/hls-HIYOUTUBE/master.m3u8");
+            // var video = document.getElementById('video');
+            // hls.attachMedia(video);
+
+            var player = new Clappr.Player({
+                parentId: "#player",
+                // source: "https://fly.live.ceeblue.tv/cmaf/out+de1e6f7c-e5db-450b-9603-c3644274779b/index.m3u8",
+                source: "https://203.247.240.228:8000/hls-HIYOUTUBE/master.m3u8",
+                mute: true,
+                autoPlay: true,
+                playback: {
+                    hlsjsConfig: {
+                        liveSyncDurationCount: 7,
+                        loader: engine.createLoaderClass()
+                    }
+                }
+            });
+            p2pml.hlsjs.initClapprPlayer(player);
+        } else {
+            document.write("Not supported :(");
+        }
+    </script>
+</body>
+</html>
