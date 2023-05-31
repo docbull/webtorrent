@@ -52,7 +52,6 @@
     <div id="hero">
       <div id="output">
         <div id="progressBar"></div>
-        <!-- <video></video> -->
         <!-- The video player will be added here -->
       </div>
       <!-- Statistics -->
@@ -96,9 +95,8 @@
 
     <script>
       // const torrentId = 'magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent'
-      // const torrentId = 'magnet:?xt=urn:btih:6326a22f7922cd7004661338f8b6dcd033364a45&dn=latte.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
-    //   const torrentId = 'magnet:?xt=urn:btih:ac7ae14caf2fbd61d192afa6bbe8215164e89d8a&dn=QnA.mp4&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337'
-      const torrentId = 'magnet:?xt=urn:btih:ab848baad276b1ed6db914e898e5631e0d1043fe&dn=master.m3u8&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337'
+      const torrentId = 'magnet:?xt=urn:btih:6326a22f7922cd7004661338f8b6dcd033364a45&dn=latte.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+      // const torrentId = 'magnet:?xt=urn:btih:ecfe6313f70fa9aa47a6935b464f2ed885a1f189&dn=Sintel.mp4&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337'
 
       const client = new WebTorrent()
 
@@ -114,10 +112,9 @@
 
       const files  = []
 
+      let start = Date.now()
       // Download the torrent
       client.add(torrentId, function (torrent) {
-        console.log(torrent.files)
-
         // Torrents can contain many files. Let's use the .mp4 file
         const file = torrent.files.find(function (file) {
           if (file.name.endsWith('.mp4')) {
@@ -131,14 +128,35 @@
           // return file.name.endsWith('.mp4')
         })
 
+        let cnt = 0
+        let receivedData = 0
+        let segmentNum = 0
+
         torrent.files.forEach(function (file) {
           files.push(file)
         })
 
         // Stream the file in the browser
         // file.appendTo('#output')
+        console.log('initial latency:', Date.now() - start, 'ms')
         files.forEach(function (file) {
           file.appendTo('#output')
+        })
+
+        const vid = document.querySelector('video')
+        vid.play()
+        let streamingStatus = setInterval(() => {
+          let consumedData = vid.webkitVideoDecodedByCount/1024/1024 + vid.webkitAudioDecodedByCount/1024/1024
+          
+          console.log(`%ctime: ${cnt}`, 'color:orange;')
+          console.log(`%cReceived data: ${torrent.received/1024/1024}`, 'color:red;')
+          consumedData = vid.webkitVideoDecodedByteCount/1024/1024 + vid.webkitAudioDecodedByteCount/1024/1024
+          console.log(`%cConsumed data: ${consumedData}`, 'color:blue;')
+          cnt++;
+        }, 1000)
+        vid.addEventListener('ended', (event) => {
+          console.log('Ended video')
+          clearInterval(streamingStatus)
         })
 
         // Trigger statistics refresh
