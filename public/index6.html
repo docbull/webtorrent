@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Clappr/Hls.js with P2P Media Loader</title>
+    <meta charset="utf-8">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/p2p-media-loader-core@latest/build/p2p-media-loader-core.min.js"></script> -->
+    <script src="./p2p-media-loader-core.js"></script>
+    <script src="./p2p-media-loader-hlsjs.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/p2p-media-loader-hlsjs@latest/build/p2p-media-loader-hlsjs.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> -->
+    <script src="./cdnhls.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.6.3/rickshaw.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@hola.org/jwplayer-hlsjs@latest/dist/jwplayer.hlsjs.min.js"></script>
+    <script src="https://content.jwplatform.com/libraries/aG3IMhIy.js"></script>
+</head>
+<body>
+    <div id="player"></div>
+    <video id="video" autoplay controls muted></video>
+    <script>
+        if (p2pml.hlsjs.Engine.isSupported()) {
+            var engine = new p2pml.hlsjs.Engine({
+                loader: {
+                    cachedSegmentExpiration: 300000000,
+                    cachedSegmentsCount: 5000, 
+                    // httpDownloadProbabilitySkipIfNoPeers: true,
+                    simultaneousHttpDownloads: 7,
+                    // httpFailedSegmentTimeout: 1
+                }
+            });
+
+            // if (Hls.isSupported()) {
+            //   console.log("it supports :)");
+            //   var hls = new Hls({
+            //     liveSyncDurationCount: 7,
+            //     loader: engine.createLoaderClass(),
+            //   });
+
+            //   p2pml.hlsjs.initHlsJsPlayer(hls);
+
+            //   hls.loadSource("https://203.247.240.228:3000/hls-HIYOUTUBE/master.m3u8");
+
+            //   var video = document.getElementById('video');
+            //   hls.attachMedia(video);
+            // } else {
+            //   console.log("Not Supported :(");
+            // }
+
+            // console.log(engine)
+            var player = new Clappr.Player({
+                parentId: "#player",
+                source: "https://203.247.240.228:3000/hls-HIYOUTUBE/master.m3u8",
+                mute: true,
+                autoPlay: true,
+                playback: {
+                    hlsjsConfig: {
+                        liveSyncDurationCount: 7,
+                        loader: engine.createLoaderClass()
+                    }
+                }
+            });
+            p2pml.hlsjs.initClapprPlayer(player);
+
+            // console.log(p2pml.core);
+            // console.log(engine);
+
+            let size = 0;
+            engine.on(p2pml.core.Events.PieceBytesDownloaded, (m, s) => {
+                // console.log(m, s)
+                // size += s;
+            })
+            let t = 0;
+
+            engine.on(p2pml.core.Events.SegmentLoaded, (e) => {
+                // console.log('received:', e.url, 'time:', Date.now());
+                // console.log(e);
+                size += e.data.byteLength;
+            })
+
+            const vid = document.querySelector('video')
+            var interval = setInterval(() => {
+                console.log('time:', t);
+                console.log('Received data:', size/1024/1024);
+                var consumedData = vid.webkitVideoDecodedByteCount/1024/1024 + vid.webkitAudioDecodedByteCount/1024/1024
+                console.log(`%cConsumed data: ${consumedData}`, 'color:blue;')
+                t += 1;
+            }, 1000);
+
+            vid.addEventListener('waiting', (e) => {
+                console.log('Frozen');
+            })
+
+            vid.addEventListener('ended', (event) => {
+                console.log('Ended video')
+                clearInterval(interval)
+            })
+
+            // var video = document.getElementById('video');
+            // videoSrc = 'https://203.247.240.228:3000/hls-HIYOUTUBE/master.m3u8';
+            // if (Hls.isSupported) {
+            //   var hls = new Hls();
+            //   p2pml.hlsjs.initHlsJsPlayer(hls);
+
+            //   hls.loadSource(videoSrc);
+            //   hls.attachMedia(video);
+            // } else {
+            //   console.log("Not supported :(");
+            //   document.write("Not supported :(");
+            // }
+        } else {
+            document.write("Not supported :(");
+        }
+    </script>
+</body>
+</html>

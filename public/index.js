@@ -35,8 +35,23 @@ app.engine('html', require('ejs').renderFile);
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-app.use('/', function(req, res) {
-    res.render('index.html');
+app.use('/1', function(req, res) {
+    res.render('index1.html');
+})
+app.use('/2', function(req, res) {
+    res.render('index2.html');
+})
+app.use('/3', function(req, res) {
+    res.render('index3.html');
+})
+app.use('/4', function(req, res) {
+    res.render('index4.html');
+})
+app.use('/5', function(req, res) {
+    res.render('index5.html');
+})
+app.use('/6', function(req, res) {
+    res.render('index6.html');
 })
 
 app.use(express.static(path.join(__dirname, '/')));
