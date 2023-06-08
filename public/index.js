@@ -53,7 +53,18 @@ app.use('/5', function(req, res) {
 app.use('/6', function(req, res) {
     res.render('index6.html');
 })
-
+app.use('/7', function(req, res) {
+    res.render('index7.html');
+})
+app.use('/8', function(req, res) {
+    res.render('index8.html');
+})
+app.use('/9', function(req, res) {
+    res.render('index9.html');
+})
+app.use('/10', function(req, res) {
+    res.render('index10.html');
+})
 app.use(express.static(path.join(__dirname, '/')));
 
 https.createServer(options, app).listen(app.get('HTTPS_PORT'));
